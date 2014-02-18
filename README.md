@@ -87,6 +87,6 @@ This is a translation to spanish:
 	about %hours hours ago: hace %hours horas
 	today at %time: today at %time
 	yersterday at %time: yersterday at %time
-	%days days ago, %datetime: hace %days días, %datetime
-	"{1} 1 month ago |]1,Inf[ %months months ago": 
+	%date at %time: %date at %time
+	%date: %date
 
