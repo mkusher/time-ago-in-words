@@ -6,9 +6,13 @@ By example
 
 	{{ user.lastLogin|ago }}
 	
-Outputs
+Output examples
 
+	half a minute ago
+	3 minutes ago
+	about 1 hour ago
 	Today at 04:14
+	Yersterday at 17:36
 
 # Installation for Symfony2
 
