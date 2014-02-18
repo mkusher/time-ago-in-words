@@ -8,7 +8,7 @@ By example
 	
 Outputs
 
-	3 days ago
+	Today at 04:14
 
 # Installation for Symfony2
 
