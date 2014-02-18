@@ -24,7 +24,7 @@ Outputs
 
 or use composer's require command:
 
-	composer require salavert/time-ago-in-words:1.*
+	composer require mkusher/time-ago-in-words:dev-master
 
 2) Register an Extension as a Service
 
@@ -46,7 +46,7 @@ XML:
 
 ```
 # or into your bundle src\Acme\AcmeBundle\Resources\config\services.xml
-<service id="salavert.twig.time_ago" class="Salavert\Twig\Extension\TimeAgoExtension">
+<service id="mkusher.twig.time_ago" class="Mkusher\Twig\Extension\TimeAgoExtension">
 	<tag name="twig.extension" />
 	<argument type="service" id="translator" />
 </service>
@@ -56,7 +56,7 @@ XML:
 
 To display distance of time in words between a date and current date:
 
-	{{ message.created|time_ago_in_words }}
+	{{ message.created|ago }}
 
 To display distance of time between two custom dates you should use 
 
@@ -69,7 +69,7 @@ You also have two available options, for both time_ago_in_words & distance_of_ti
 
 Thus, if you want to have the months approximation but not the seconds one, you should use:
 
-	{{ message.created|time_ago_in_words(false, true) }}
+	{{ message.created|ago(false, true) }}
 
 # Translations
 
@@ -85,7 +85,8 @@ This is a translation to spanish:
 	%minutes minutes ago: hace %minutes minutos
 	about 1 hour ago: hace casi 1 hora
 	about %hours hours ago: hace %hours horas
-	1 day ago: hace 1 día
-	%days days ago: hace %days días
+	today at %time: today at %time
+	yersterday at %time: yersterday at %time
+	%days days ago, %datetime: hace %days días, %datetime
 	"{1} 1 month ago |]1,Inf[ %months months ago": 
 

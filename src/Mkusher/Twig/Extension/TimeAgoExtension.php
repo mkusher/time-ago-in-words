@@ -48,33 +48,7 @@ class TimeAgoExtension extends Twig_Extension {
      */
     function timeAgoInWordsFilter($from_time, $include_seconds = false, $include_months = false)
     {
-        $messages = array();
-        $now = time();
-        $times = array(
-            $now - 2,
-            $now - 35,
-            $now - 55,
-            $now - 65,
-            $now - 75,
-            $now-125,
-            $now - 185,
-            $now - 1500,
-            $now - 3000,
-            $now - 3600*3,
-            $now - 3600*13,
-            $now - 3600*22,
-            $now - 3600 * 30,
-            $now - 3600 * 50,
-            $now - 3600 * 24 * 6,
-            $now - 3600 * 24 * 15,
-            $now - 3600 * 24 * 35,
-            $now - 3600 * 24 * 55,
-
-        );
-        $messages[] = date("d.m.Y H:i:s");
-        foreach($times AS $from_time)
-            $messages[] = date("d.m.Y H:i:s", $from_time) . ' : ' . $this->distanceOfTimeInWordsFilter($from_time, new \DateTime('now'), $include_seconds, $include_months);
-        return implode("<br />", $messages);
+        return $this->distanceOfTimeInWordsFilter($from_time, new \DateTime('now'), $include_seconds, $include_months);
     }
 
     /**
@@ -137,17 +111,17 @@ class TimeAgoExtension extends Twig_Extension {
             return $this->translator->transchoice('about %hours hours ago', round($distance_in_minutes/60), array('%hours' => round($distance_in_minutes/60)));
         }
         elseif ($distance->isToday()){
-            return $this->translator->trans('today at %date', array('%date' => date("H:i:s",$distance->getFrom())));
+            return $this->translator->trans('today at %time', array('%time' => date("H:i:s",$distance->getFrom())));
         }
         elseif ($distance->isYesterday()){
-            return $this->translator->trans('yersterday at %date', array('%date' => date("H:i:s",$distance->getFrom())));
+            return $this->translator->trans('yersterday at %time', array('%time' => date("H:i:s",$distance->getFrom())));
         }
         else{
             $distance_in_days = round($distance_in_minutes/1440);
             if (!$include_months || $distance_in_days <= 30) {
-                return $this->translator->trans('%days days ago, %date', array(
+                return $this->translator->trans('%days days ago, %datetime', array(
                     '%days' => round($distance_in_days),
-                    '%date' => date("d.m.Y H:i:s",$distance->getFrom())
+                    '%datetime' => date("d.m.Y H:i:s",$distance->getFrom())
                 ));
             }
             else {
@@ -160,20 +134,6 @@ class TimeAgoExtension extends Twig_Extension {
     {
         $distance = new Distance($from_time, $to_time);
         return $distance;
-    }
-
-    protected function transformToTimestamp($timestamp)
-    {
-        $datetime_transformer = new \Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToStringTransformer(null, null, 'Y-m-d H:i:s');
-        $timestamp_transformer = new \Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToTimestampTransformer();
-        # Transforming to Timestamp
-        if (!($timestamp instanceof \DateTime) && !is_numeric($timestamp)) {
-            $timestamp = $datetime_transformer->reverseTransform($timestamp);
-            $timestamp = $timestamp_transformer->transform($timestamp);
-        } elseif($timestamp instanceof \DateTime) {
-            $timestamp = $timestamp_transformer->transform($timestamp);
-        }
-        return $timestamp;
     }
 
     /**
