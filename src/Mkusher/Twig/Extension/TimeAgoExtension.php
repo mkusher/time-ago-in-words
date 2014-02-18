@@ -111,23 +111,21 @@ class TimeAgoExtension extends Twig_Extension {
             return $this->translator->transchoice('about %hours hours ago', $distance->getHours(), array('%hours' => $distance->getHours()));
         }
         elseif ($distance->isToday()){
-            return $this->translator->trans('today at %time', array('%time' => date("H:i:s",$distance->getFrom())));
+            return $this->translator->trans('today at %time', array('%time' => date("H:i",$distance->getFrom())));
         }
         elseif ($distance->isYesterday()){
-            return $this->translator->trans('yersterday at %time', array('%time' => date("H:i:s",$distance->getFrom())));
+            return $this->translator->trans('yersterday at %time', array('%time' => date("H:i",$distance->getFrom())));
         }
-        else{
-            $distance_in_days = round($distance_in_minutes/1440);
-            if (!$include_months) {
-                return $this->translator->transchoice('%days days ago, %datetime', $distance_in_days, array(
-                    '%days' => $distance_in_days,
-                    '%datetime' => date("d.m.Y H:i:s",$distance->getFrom())
-                ));
-            }
-            else {
-                return $this->translator->transchoice('{1} 1 month ago |]1,Inf[ %months months ago', round($distance_in_days/30), array('%months' => round($distance_in_days/30)));
-            }
+        elseif ($distance->isThisYear()){
+            return $this->translator->trans('%date at %time', array(
+                '%time' => date("H:i",$distance->getFrom()),
+                '%date' => date('d.m',$distance->getFrom())
+            ));
         }
+        else
+            return $this->translator->trans('%date', array(
+                '%date' => date('d.m.Y',$distance->getFrom())
+            ));
     }
 
     protected function getDistance($from_time, $to_time)

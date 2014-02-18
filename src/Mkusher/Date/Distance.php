@@ -62,10 +62,28 @@ class Distance {
     public function isYesterday()
     {
         if(empty($this->distance['is_yesterday'])){
-            $yersterday = self::transformTimestamp( DateTime::createFromFormat('d.m.YHis', date('d.m.Y')."000000") ) - 3600*24;
+            $yersterday = self::transformTimestamp( DateTime::createFromFormat('d.m.YHis', date('d.m.Y')."000000") );
             $this->distance['is_yesterday'] = $this->getFrom() - $yersterday >= 0;
         }
         return $this->distance['is_yesterday'];
+    }
+
+    public function isThisMonth()
+    {
+        if(empty($this->distance['is_this_month'])){
+            $from = self::transformTimestamp( DateTime::createFromFormat('d.m.YHis', "1.".date('m.Y')."000000") );
+            $this->distance['is_this_month'] = $this->getFrom() >= $from;
+        }
+        return $this->distance['is_this_month'];
+    }
+
+    public function isThisYear()
+    {
+        if(empty($this->distance['is_this_year'])){
+            $from = self::transformTimestamp( DateTime::createFromFormat('d.m.YHis', "1.1.".date('Y')."000000") );
+            $this->distance['is_this_year'] = $this->getFrom() >= $from;
+        }
+        return $this->distance['is_this_year'];
     }
 
     public function __construct($from, $to = null)
