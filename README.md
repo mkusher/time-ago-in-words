@@ -4,7 +4,7 @@ This is a Twig extension for Symfony2 Framework where you can easily convert a d
 
 By example
 
-	{{ user.lastLogin|time_ago_in_words }}
+	{{ user.lastLogin|ago }}
 	
 Outputs
 
@@ -17,7 +17,7 @@ Outputs
 ```
 {
 	"require": {
-		"salavert/time-ago-in-words": "1.*"
+		"mkusher/time-ago-in-words": "dev-master"
 	}
 }
 ```
@@ -35,8 +35,8 @@ YAML:
 ```
 # app/config/config.yml
 services:
-	salavert.twig.time_ago:
-		class: Salavert\Twig\Extension\TimeAgoExtension
+	mkusher.twig.time_ago:
+		class: Mkusher\Twig\Extension\TimeAgoExtension
 		arguments: [@translator]
 		tags:
 		- { name: twig.extension }
