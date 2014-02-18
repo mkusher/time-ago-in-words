@@ -1,9 +1,17 @@
 <?php
+/**
+ * This file is part of the sm package.
+ *
+ * (c) Aleh Kashnikau <aleh.kashnikau@gmail.com>
+ *
+ * Created: 18/02/2014 8:33 PM
+ */
 
-namespace Salavert\Twig\Extension;
+namespace Mkusher\TimeAgoInWords\Twig\Extension;
 
-class TimeAgoExtension extends \Twig_Extension
-{
+use Symfony\Component\Translation\IdentityTranslator;
+
+class TimeAgo extends \Twig_Extension {
     protected $translator;
 
     /**
@@ -20,7 +28,7 @@ class TimeAgoExtension extends \Twig_Extension
     {
         return array(
             new \Twig_SimpleFilter('distance_of_time_in_words', array($this, 'distanceOfTimeInWordsFilter')),
-            new \Twig_SimpleFilter('time_ago_in_words', array($this, 'timeAgoInWordsFilter')),
+            new \Twig_SimpleFilter('ago', array($this, 'timeAgoInWordsFilter'))
         );
     }
 
@@ -60,40 +68,21 @@ class TimeAgoExtension extends \Twig_Extension
      */
     public function distanceOfTimeInWordsFilter($from_time, $to_time = null, $include_seconds = false, $include_months = false)
     {
-        $datetime_transformer = new \Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToStringTransformer(null, null, 'Y-m-d H:i:s');
-        $timestamp_transformer = new \Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToTimestampTransformer();
+        $distance = $this->getDistance($from_time, $to_time);
+        $message = $this->prepareMessage($distance, $include_seconds, $include_months);
+        return $message;
+    }
 
-        # Transforming to Timestamp
-        if (!($from_time instanceof \DateTime) && !is_numeric($from_time)) {
-            $from_time = $datetime_transformer->reverseTransform($from_time);
-            $from_time = $timestamp_transformer->transform($from_time);
-        } elseif($from_time instanceof \DateTime) {
-            $from_time = $timestamp_transformer->transform($from_time);
-        }
 
-        $to_time = empty($to_time) ? new \DateTime('now') : $to_time;
-
-        # Transforming to Timestamp
-        if (!($to_time instanceof \DateTime) && !is_numeric($to_time)) {
-            $to_time = $datetime_transformer->reverseTransform($to_time);
-            $to_time = $timestamp_transformer->transform($to_time);
-        } elseif($to_time instanceof \DateTime) {
-            $to_time = $timestamp_transformer->transform($to_time);
-        }
-
-        $distance_in_minutes = round((abs($to_time - $from_time))/60);
-        $distance_in_seconds = round(abs($to_time - $from_time));
+    protected function prepareMessage($distance, $include_seconds, $include_months)
+    {
+        $distance_in_minutes = $distance['minutes'];
+        $distance_in_seconds = $distance['seconds'];
 
         if ($distance_in_minutes <= 1){
             if ($include_seconds){
-                if ($distance_in_seconds < 5){
-                    return $this->translator->trans('less than %seconds seconds ago', array('%seconds' => 5));
-                }
-                elseif($distance_in_seconds < 10){
-                    return $this->translator->trans('less than %seconds seconds ago', array('%seconds' => 10));
-                }
-                elseif($distance_in_seconds < 20){
-                    return $this->translator->trans('less than %seconds seconds ago', array('%seconds' => 20));
+                if($distance_in_seconds < 20){
+                    return $this->translator->trans('less than %seconds seconds ago', array('%seconds' => $distance_in_seconds));
                 }
                 elseif($distance_in_seconds < 40){
                     return $this->translator->trans('half a minute ago');
@@ -130,6 +119,39 @@ class TimeAgoExtension extends \Twig_Extension
         }
     }
 
+    protected function getDistance($from_time, $to_time)
+    {
+        $from_time = $this->transformToTimestamp($from_time);
+
+        $to_time = empty($to_time) ? new \DateTime('now') : $to_time;
+
+        # Transforming to Timestamp
+        $to_time = $this->transformToTimestamp($to_time);
+
+
+        $distance_in_minutes = round((abs($to_time - $from_time))/60);
+        $distance_in_seconds = round(abs($to_time - $from_time));
+
+        return array(
+            'seconds' => $distance_in_seconds,
+            'minutes' => $distance_in_minutes
+        );
+    }
+
+    protected function transformToTimestamp($timestamp)
+    {
+        $datetime_transformer = new \Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToStringTransformer(null, null, 'Y-m-d H:i:s');
+        $timestamp_transformer = new \Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToTimestampTransformer();
+        # Transforming to Timestamp
+        if (!($timestamp instanceof \DateTime) && !is_numeric($timestamp)) {
+            $timestamp = $datetime_transformer->reverseTransform($timestamp);
+            $timestamp = $timestamp_transformer->transform($timestamp);
+        } elseif($timestamp instanceof \DateTime) {
+            $timestamp = $timestamp_transformer->transform($timestamp);
+        }
+        return $timestamp;
+    }
+
     /**
      * Returns the name of the extension.
      *
@@ -139,6 +161,4 @@ class TimeAgoExtension extends \Twig_Extension
     {
         return 'time_ago_extension';
     }
-
-
-}
+} 
