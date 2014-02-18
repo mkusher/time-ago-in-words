@@ -108,7 +108,7 @@ class TimeAgoExtension extends Twig_Extension {
             return $this->translator->trans('about 1 hour ago');
         }
         elseif ($distance_in_minutes <= 240){
-            return $this->translator->transchoice('about %hours hours ago', round($distance_in_minutes/60), array('%hours' => round($distance_in_minutes/60)));
+            return $this->translator->transchoice('about %hours hours ago', $distance->getHours(), array('%hours' => $distance->getHours()));
         }
         elseif ($distance->isToday()){
             return $this->translator->trans('today at %time', array('%time' => date("H:i:s",$distance->getFrom())));
@@ -118,9 +118,9 @@ class TimeAgoExtension extends Twig_Extension {
         }
         else{
             $distance_in_days = round($distance_in_minutes/1440);
-            if (!$include_months || $distance_in_days <= 30) {
-                return $this->translator->trans('%days days ago, %datetime', array(
-                    '%days' => round($distance_in_days),
+            if (!$include_months) {
+                return $this->translator->transchoice('%days days ago, %datetime', $distance_in_days, array(
+                    '%days' => $distance_in_days,
                     '%datetime' => date("d.m.Y H:i:s",$distance->getFrom())
                 ));
             }

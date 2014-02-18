@@ -40,7 +40,7 @@ class Distance {
     public function getHours()
     {
         if(empty($this->distance['hours']))
-            $this->distance['hours'] = round(abs($this->getTo() - $this->getFrom())/3600);
+            $this->distance['hours'] = round($this->getMinutes()/60);
         return $this->distance['hours'];
     }
 
