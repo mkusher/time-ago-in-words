@@ -7,11 +7,15 @@
  * Created: 18/02/2014 8:33 PM
  */
 
-namespace Mkusher\TimeAgoInWords\Twig\Extension;
+namespace Mkusher\Twig\Extension;
 
 use Symfony\Component\Translation\IdentityTranslator;
+use Mkusher\Date\Distance;
+use \DateTime;
+use \Twig_SimpleFilter;
+use \Twig_Extension;
 
-class TimeAgo extends \Twig_Extension {
+class TimeAgoExtension extends Twig_Extension {
     protected $translator;
 
     /**
@@ -27,8 +31,9 @@ class TimeAgo extends \Twig_Extension {
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('distance_of_time_in_words', array($this, 'distanceOfTimeInWordsFilter')),
-            new \Twig_SimpleFilter('ago', array($this, 'timeAgoInWordsFilter'))
+            new Twig_SimpleFilter('distance_of_time_in_words', array($this, 'distanceOfTimeInWordsFilter')),
+            new Twig_SimpleFilter('time_ago_in_words', array($this, 'timeAgoInWordsFilter')),
+            new Twig_SimpleFilter('ago', array($this, 'timeAgoInWordsFilter')),
         );
     }
 
@@ -43,7 +48,33 @@ class TimeAgo extends \Twig_Extension {
      */
     function timeAgoInWordsFilter($from_time, $include_seconds = false, $include_months = false)
     {
-        return $this->distanceOfTimeInWordsFilter($from_time, new \DateTime('now'), $include_seconds, $include_months);
+        $messages = array();
+        $now = time();
+        $times = array(
+            $now - 2,
+            $now - 35,
+            $now - 55,
+            $now - 65,
+            $now - 75,
+            $now-125,
+            $now - 185,
+            $now - 1500,
+            $now - 3000,
+            $now - 3600*3,
+            $now - 3600*13,
+            $now - 3600*22,
+            $now - 3600 * 30,
+            $now - 3600 * 50,
+            $now - 3600 * 24 * 6,
+            $now - 3600 * 24 * 15,
+            $now - 3600 * 24 * 35,
+            $now - 3600 * 24 * 55,
+
+        );
+        $messages[] = date("d.m.Y H:i:s");
+        foreach($times AS $from_time)
+            $messages[] = date("d.m.Y H:i:s", $from_time) . ' : ' . $this->distanceOfTimeInWordsFilter($from_time, new \DateTime('now'), $include_seconds, $include_months);
+        return implode("<br />", $messages);
     }
 
     /**
@@ -66,7 +97,7 @@ class TimeAgo extends \Twig_Extension {
      *
      * @return mixed
      */
-    public function distanceOfTimeInWordsFilter($from_time, $to_time = null, $include_seconds = false, $include_months = false)
+    public function distanceOfTimeInWordsFilter($from_time, $to_time = null, $include_seconds = true, $include_months = false)
     {
         $distance = $this->getDistance($from_time, $to_time);
         $message = $this->prepareMessage($distance, $include_seconds, $include_months);
@@ -74,10 +105,10 @@ class TimeAgo extends \Twig_Extension {
     }
 
 
-    protected function prepareMessage($distance, $include_seconds, $include_months)
+    protected function prepareMessage(Distance $distance, $include_seconds, $include_months)
     {
-        $distance_in_minutes = $distance['minutes'];
-        $distance_in_seconds = $distance['seconds'];
+        $distance_in_minutes = $distance->getMinutes();
+        $distance_in_seconds = $distance->getSeconds();
 
         if ($distance_in_minutes <= 1){
             if ($include_seconds){
@@ -102,16 +133,22 @@ class TimeAgo extends \Twig_Extension {
         elseif ($distance_in_minutes <= 90){
             return $this->translator->trans('about 1 hour ago');
         }
-        elseif ($distance_in_minutes <= 1440){
+        elseif ($distance_in_minutes <= 240){
             return $this->translator->transchoice('about %hours hours ago', round($distance_in_minutes/60), array('%hours' => round($distance_in_minutes/60)));
         }
-        elseif ($distance_in_minutes <= 2880){
-            return $this->translator->trans('1 day ago');
+        elseif ($distance->isToday()){
+            return $this->translator->trans('today at %date', array('%date' => date("H:i:s",$distance->getFrom())));
+        }
+        elseif ($distance->isYesterday()){
+            return $this->translator->trans('yersterday at %date', array('%date' => date("H:i:s",$distance->getFrom())));
         }
         else{
             $distance_in_days = round($distance_in_minutes/1440);
             if (!$include_months || $distance_in_days <= 30) {
-                return $this->translator->trans('%days days ago', array('%days' => round($distance_in_days)));
+                return $this->translator->trans('%days days ago, %date', array(
+                    '%days' => round($distance_in_days),
+                    '%date' => date("d.m.Y H:i:s",$distance->getFrom())
+                ));
             }
             else {
                 return $this->translator->transchoice('{1} 1 month ago |]1,Inf[ %months months ago', round($distance_in_days/30), array('%months' => round($distance_in_days/30)));
@@ -121,21 +158,8 @@ class TimeAgo extends \Twig_Extension {
 
     protected function getDistance($from_time, $to_time)
     {
-        $from_time = $this->transformToTimestamp($from_time);
-
-        $to_time = empty($to_time) ? new \DateTime('now') : $to_time;
-
-        # Transforming to Timestamp
-        $to_time = $this->transformToTimestamp($to_time);
-
-
-        $distance_in_minutes = round((abs($to_time - $from_time))/60);
-        $distance_in_seconds = round(abs($to_time - $from_time));
-
-        return array(
-            'seconds' => $distance_in_seconds,
-            'minutes' => $distance_in_minutes
-        );
+        $distance = new Distance($from_time, $to_time);
+        return $distance;
     }
 
     protected function transformToTimestamp($timestamp)
