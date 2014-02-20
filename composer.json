@@ -1,25 +1,26 @@
 {
-  "name": "mkusher/time-ago-in-words",
-  "description": "Twig extension where you can easily convert a datetime or timestamp to a distance of time in words.",
-  "keywords": ["twig", "time ago", "distance of time", "time ago in words"],
-  "homepage": "http://github.com/mkusher/time-ago-in-words",
-  "license": "MIT",
-  "require": {
-    "php": ">=5.3.0",
-    "twig/twig": "~1.12"
-  },
-  "autoload": {
-    "psr-0": { "Mkusher": "src/" }
-  },
-  "authors": [
-    {
-      "name": "Jose Salavert",
-      "email": "salavert@gmail.com",
-      "homepage": "http://www.salavert.org"
+    "name": "mkusher/time-ago-in-words",
+    "description": "Twig extension where you can easily convert a datetime or timestamp to a distance of time in words.",
+    "keywords": ["twig", "time ago", "distance of time", "time ago in words"],
+    "homepage": "http://github.com/mkusher/time-ago-in-words",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.3.0",
+        "twig/twig": "~1.12",
+        "sonata-project/intl-bundle": "2.*"
     },
-    {
-      "name": "Aleh Kashnikau",
-      "email": "aleh.kashnikau@gmail.com"
-    }
-  ]
+    "autoload": {
+        "psr-0": { "Mkusher": "src/" }
+    },
+    "authors": [
+        {
+            "name": "Jose Salavert",
+            "email": "salavert@gmail.com",
+            "homepage": "http://www.salavert.org"
+        },
+        {
+            "name": "Aleh Kashnikau",
+            "email": "aleh.kashnikau@gmail.com"
+        }
+    ]
 }

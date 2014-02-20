@@ -46,7 +46,7 @@ class TimeAgoExtension extends Twig_Extension {
      *
      * @return mixed
      */
-    function timeAgoInWordsFilter($from_time, $include_seconds = false, $include_months = false)
+    function timeAgoInWordsFilter($from_time, $include_seconds = true, $include_months = false)
     {
         return $this->distanceOfTimeInWordsFilter($from_time, new \DateTime('now'), $include_seconds, $include_months);
     }
@@ -84,10 +84,10 @@ class TimeAgoExtension extends Twig_Extension {
         $distance_in_minutes = $distance->getMinutes();
         $distance_in_seconds = $distance->getSeconds();
 
-        if ($distance_in_minutes <= 1){
+        if ($distance_in_seconds <= 60){
             if ($include_seconds){
                 if($distance_in_seconds < 20){
-                    return $this->translator->trans('less than %seconds seconds ago', array('%seconds' => $distance_in_seconds));
+                    return $this->translator->transchoice('less than %seconds seconds ago', $distance_in_seconds, array('%seconds' => $distance_in_seconds));
                 }
                 elseif($distance_in_seconds < 40){
                     return $this->translator->trans('half a minute ago');

@@ -30,7 +30,7 @@ class Distance {
     public function getMinutes()
     {
         if(empty($this->distance['minutes']))
-            $this->distance['minutes'] = round(abs($this->getTo() - $this->getFrom())/60);
+            $this->distance['minutes'] = floor(abs($this->getTo() - $this->getFrom())/60);
         return $this->distance['minutes'];
     }
 
@@ -62,7 +62,7 @@ class Distance {
     public function isYesterday()
     {
         if(empty($this->distance['is_yesterday'])){
-            $yersterday = self::transformTimestamp( DateTime::createFromFormat('d.m.YHis', date('d.m.Y')."000000") );
+            $yersterday = self::transformTimestamp( DateTime::createFromFormat('d.m.YHis', date('d.m.Y')."000000") ) - 3600*24;
             $this->distance['is_yesterday'] = $this->getFrom() - $yersterday >= 0;
         }
         return $this->distance['is_yesterday'];
