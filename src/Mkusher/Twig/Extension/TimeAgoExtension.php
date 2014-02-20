@@ -14,18 +14,24 @@ use Mkusher\Date\Distance;
 use \DateTime;
 use \Twig_SimpleFilter;
 use \Twig_Extension;
+use Sonata\IntlBundle\Templating\Helper\DateTimeHelper;
+use Symfony\Component\Intl\DateFormatter\IntlDateFormatter;
 
 class TimeAgoExtension extends Twig_Extension {
     protected $translator;
+    /** @var DateTimeHelper */
+    protected $datetimeformater;
 
     /**
      * Constructor method
      *
      * @param IdentityTranslator $translator
      */
-    public function __construct($translator)
+    public function __construct($translator, $formater)
     {
         $this->translator = $translator;
+
+        $this->datetimeformater = $formater;
     }
 
     public function getFilters()
@@ -111,20 +117,24 @@ class TimeAgoExtension extends Twig_Extension {
             return $this->translator->transchoice('about %hours hours ago', $distance->getHours(), array('%hours' => $distance->getHours()));
         }
         elseif ($distance->isToday()){
-            return $this->translator->trans('today at %time', array('%time' => date("H:i",$distance->getFrom())));
+            return $this->translator->trans('today at %time', array(
+                '%time' =>  $this->datetimeformater->formatTime($distance->getFrom(), null, null, IntlDateFormatter::SHORT)
+                ));
         }
         elseif ($distance->isYesterday()){
-            return $this->translator->trans('yersterday at %time', array('%time' => date("H:i",$distance->getFrom())));
+            return $this->translator->trans('yersterday at %time', array(
+                '%time' =>  $this->datetimeformater->formatTime($distance->getFrom(), null, null, IntlDateFormatter::SHORT)
+            ));
         }
         elseif ($distance->isThisYear()){
             return $this->translator->trans('%date at %time', array(
-                '%time' => date("H:i",$distance->getFrom()),
-                '%date' => date('d.m',$distance->getFrom())
+                '%time' =>  $this->datetimeformater->formatTime($distance->getFrom(), null, null, IntlDateFormatter::SHORT),
+                '%date' => $this->datetimeformater->format($distance->getFrom(), "d LLL")
             ));
         }
         else
             return $this->translator->trans('%date', array(
-                '%date' => date('d.m.Y',$distance->getFrom())
+                '%date' => $this->datetimeformater->format($distance->getFrom(), "d LLL yyyy")
             ));
     }
 
