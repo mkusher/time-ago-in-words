@@ -7,7 +7,7 @@
  * Created: 18/02/2014 9:49 PM
  */
 
-namespace MKusher\Date;
+namespace Mkusher\Date;
 
 use \DateTime;
 use \Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToTimestampTransformer;
